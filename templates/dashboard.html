@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3 class="mb-3">Finance Dashboard</h3>
+
+<!-- Summary -->
+<div class="row text-center mb-4">
+<div class="col-md-4">
+<div class="card p-3 bg-success text-white shadow">
+<h5>Income</h5>
+<h3>₹ {{ income }}</h3>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card p-3 bg-danger text-white shadow">
+<h5>Expense</h5>
+<h3>₹ {{ expense }}</h3>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card p-3 bg-primary text-white shadow">
+<h5>Balance</h5>
+<h3>₹ {{ balance }}</h3>
+</div>
+</div>
+</div>
+
+<!-- Alerts -->
+{% if alerts %}
+<div class="alert alert-danger">
+<ul>
+{% for alert in alerts %}
+<li>{{ alert }}</li>
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+
+<!-- Add Transaction -->
+<div class="card p-3 shadow mb-4">
+<form method="POST">
+<select name="type" class="form-control mb-2">
+<option>Income</option>
+<option>Expense</option>
+</select>
+
+<input type="text" name="description"
+class="form-control mb-2"
+placeholder="Transaction Description" required>
+
+<input type="number" name="amount"
+class="form-control mb-2"
+placeholder="Amount" required>
+
+<button class="btn btn-dark w-100">Add Transaction</button>
+</form>
+</div>
+
+<!-- Budget Progress -->
+{% if progress_data %}
+<h5>Budget Usage</h5>
+{% for item in progress_data %}
+<label>{{ item.category }} (₹{{ item.spent }}/₹{{ item.limit }})</label>
+<div class="progress mb-3">
+<div class="progress-bar
+{% if item.percent >= 100 %} bg-danger
+{% elif item.percent >= 80 %} bg-warning
+{% else %} bg-success
+{% endif %}"
+style="width: {{ item.percent }}%">
+{{ item.percent }}%
+</div>
+</div>
+{% endfor %}
+{% endif %}
+
+<!-- Savings Goal -->
+<div class="card p-3 shadow mb-4">
+<form method="POST" action="/set_goal">
+<input type="number" name="goal"
+class="form-control mb-2"
+placeholder="Set Savings Goal" required>
+<button class="btn btn-primary w-100">Set Goal</button>
+</form>
+
+{% if goal_amount > 0 %}
+<p class="mt-3">Goal: ₹{{ goal_amount }}</p>
+<div class="progress">
+<div class="progress-bar bg-info"
+style="width: {{ goal_progress }}%">
+{{ goal_progress }}%
+</div>
+</div>
+{% endif %}
+</div>
+
+<!-- Net Worth -->
+<div class="card p-3 shadow mb-4">
+<form method="POST" action="/update_networth">
+<input type="number" name="asset"
+class="form-control mb-2"
+placeholder="Total Assets" required>
+
+<input type="number" name="liability"
+class="form-control mb-2"
+placeholder="Total Liabilities" required>
+
+<button class="btn btn-success w-100">Update Net Worth</button>
+</form>
+
+<canvas id="nwChart" class="mt-4"></canvas>
+</div>
+
+<!-- AI Prediction -->
+<div class="alert alert-warning">
+Predicted Next Month Expense: ₹ {{ prediction }}
+</div>
+
+<!-- Pie Chart -->
+<h5>Expense Categories</h5>
+<canvas id="pieChart"></canvas>
+
+<!-- Transactions -->
+<table class="table table-striped mt-4">
+<tr>
+<th>Type</th>
+<th>Category</th>
+<th>Description</th>
+<th>Amount</th>
+<th>Date</th>
+<th>Delete</th>
+</tr>
+
+{% for t in data %}
+<tr>
+<td>{{ t[2] }}</td>
+<td>{{ t[3] }}</td>
+<td>{{ t[4] }}</td>
+<td>{{ t[5] }}</td>
+<td>{{ t[6] }}</td>
+<td><a href="/delete/{{t[0]}}" class="btn btn-danger btn-sm">Delete</a></td>
+</tr>
+{% endfor %}
+</table>
+
+<!-- CSV Import -->
+<div class="card p-3 shadow mt-4">
+<form method="POST" action="/import_csv" enctype="multipart/form-data">
+<input type="file" name="file" class="form-control mb-2" required>
+<button class="btn btn-secondary w-100">Import CSV</button>
+</form>
+</div>
+
+<a href="/export" class="btn btn-success mt-3">Export Excel</a>
+
+<!-- Charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+new Chart(document.getElementById("pieChart"), {
+type: 'pie',
+data: {
+labels: {{ labels|safe }},
+datasets: [{
+data: {{ values|safe }},
+backgroundColor:['#ff6384','#36a2eb','#ffce56','#4bc0c0','#9966ff']
+}]
+}
+});
+
+new Chart(document.getElementById("nwChart"), {
+type: 'line',
+data: {
+labels: {{ nw_labels|safe }},
+datasets: [{
+label: "Net Worth",
+data: {{ nw_values|safe }},
+borderColor: "green",
+fill: false
+}]
+}
+});
+</script>
+
+{% endblock %}
