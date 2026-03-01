@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Admin Financial Overview</h1>
+
+<div class="cards">
+    <div class="card green">
+        <h3>Total Platform Income</h3>
+        <h2>₹ {{ total_income }}</h2>
+    </div>
+
+    <div class="card red">
+        <h3>Total Platform Expense</h3>
+        <h2>₹ {{ total_expense }}</h2>
+    </div>
+</div>
+
+<h3>All Users</h3>
+<table>
+<tr>
+<th>Name</th>
+<th>Email</th>
+<th>Role</th>
+</tr>
+
+{% for user in users %}
+<tr>
+<td>{{ user[1] }}</td>
+<td>{{ user[2] }}</td>
+<td>{{ user[4] }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+{% endblock %}
