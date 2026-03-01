@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Portfolio Tracker</h2>
+
+<form method="POST">
+<input type="text" name="asset" placeholder="Asset Name" required>
+<input type="number" name="invested" placeholder="Invested Amount" required>
+<input type="number" name="current" placeholder="Current Value" required>
+<button>Add Asset</button>
+</form>
+
+<table>
+<tr>
+<th>Asset</th>
+<th>Invested</th>
+<th>Current</th>
+<th>P/L %</th>
+</tr>
+
+{% for a in assets %}
+<tr>
+<td>{{ a[2] }}</td>
+<td>₹ {{ a[3] }}</td>
+<td>₹ {{ a[4] }}</td>
+<td>
+{{ ((a[4]-a[3])/a[3]*100)|round(2) }}%
+</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}
